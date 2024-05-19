@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Game</title>
+    <title>YES&NO</title>
     <style>
         body {
             display: flex;
@@ -11,29 +11,72 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            background: linear-gradient(to bottom, #1e3c72, #2a5298);
             font-family: Arial, sans-serif;
+            color: white;
         }
-        #game {
+        .container {
             text-align: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .how-to-play {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #3b3b3b;
+            border-radius: 10px;
+            text-align: left;
+        }
+        .how-to-play h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .how-to-play p {
+            margin: 5px 0;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .button.channel {
+            background-color: #f56a79;
+        }
+        .button.close {
+            background-color: #8b8b8b;
+        }
+        .button:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <div id="game">
-        <h1>Click the button!</h1>
-        <button id="clickButton">Click me</button>
-        <p>Score: <span id="score">0</span></p>
+    <div class="container">
+        <div class="title">WELCOME TO YES&NO</div>
+        <div>YES&NO is the first swipe to earn game in telegram. Check out our gameplay instructions, and follow us on social media to receive our latest updates</div>
+        <div class="how-to-play">
+            <h2>How To Play</h2>
+            <p>🖱 Swipe the screen to collect coins, get surprise chests too</p>
+            <p>🧑‍🤝‍🧑 Invite friends to get even more coins together</p>
+            <p>🚀 Upgrade various boosters to Earn coins faster</p>
+        </div>
+        <div class="buttons">
+            <button class="button channel">📢 Channel</button>
+            <button class="button close">❌ X</button>
+        </div>
     </div>
-
-    <script>
-        let score = 0;
-        const button = document.getElementById('clickButton');
-        const scoreDisplay = document.getElementById('score');
-
-        button.addEventListener('click', () => {
-            score++;
-            scoreDisplay.textContent = score;
-        });
-    </script>
 </body>
 </html>
