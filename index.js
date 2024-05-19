@@ -13,8 +13,8 @@ app.get('/', (req, res) => {
 });
 
 const token = process.env.BOT_API_KEY;
-const bot = new TelegramBot(token, {polling: true});
-const webAppUrl = 'https://telegram-bot-devsensor.vercel.app';
+const bot = new TelegramBot(token, { polling: true });
+const webAppUrl = process.env.GAME_URL;
 
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
