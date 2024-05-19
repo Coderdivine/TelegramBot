@@ -15,6 +15,21 @@
             font-family: Arial, sans-serif;
             color: white;
         }
+        .splash, .main-menu, .game-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to bottom, #ff7e5f, #feb47b);
+            z-index: 10;
+        }
+        .splash-text {
+            font-size: 48px;
+        }
         .container {
             text-align: center;
             background-color: rgba(0, 0, 0, 0.7);
@@ -23,29 +38,9 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             max-width: 90%;
             width: 400px;
+            display: none;
         }
-        .title {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        .how-to-play {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #3b3b3b;
-            border-radius: 10px;
-            text-align: left;
-        }
-        .how-to-play h2 {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-        .how-to-play p {
-            margin: 5px 0;
-        }
-        .buttons {
-            margin-top: 20px;
-        }
-        .button {
+        .main-menu .button, .game-screen .button {
             padding: 10px 20px;
             margin: 5px;
             border: none;
@@ -54,97 +49,140 @@
             font-size: 16px;
             transition: background-color 0.3s;
         }
-        .button.channel {
+        .main-menu .button.start, .game-screen .button.start {
             background-color: #f56a79;
         }
-        .button.close {
+        .main-menu .button.highscore, .game-screen .button.highscore {
             background-color: #8b8b8b;
         }
         .button:hover {
             opacity: 0.8;
         }
-        .modal {
+        .game-screen {
+            flex-direction: column;
             display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
-            justify-content: center;
-            align-items: center;
+            justify-content: space-between;
         }
-        .modal-content {
-            background-color: #3b3b3b;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 400px;
-            text-align: center;
-            color: white;
+        .score-board {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress {
+            height: 100%;
+            background-color: #4caf50;
+            width: 100%;
             border-radius: 10px;
         }
-        .close-modal {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close-modal:hover,
-        .close-modal:focus {
-            color: #000;
-            text-decoration: none;
+        .coin {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: gold;
+            border-radius: 50%;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Splash Screen -->
+    <div class="splash">
+        <div class="splash-text">YES&NO</div>
+    </div>
+
+    <!-- Main Menu Screen -->
+    <div class="container main-menu">
         <div class="title">WELCOME TO YES&NO</div>
         <div>YES&NO is the first swipe to earn game in telegram. Check out our gameplay instructions, and follow us on social media to receive our latest updates</div>
-        <div class="how-to-play">
-            <h2>How To Play</h2>
-            <p>🖱 Swipe the screen to collect coins, get surprise chests too</p>
-            <p>🧑‍🤝‍🧑 Invite friends to get even more coins together</p>
-            <p>🚀 Upgrade various boosters to Earn coins faster</p>
-        </div>
         <div class="buttons">
-            <button class="button channel" onclick="openModal('channelModal')">📢 Channel</button>
-            <button class="button close" onclick="openModal('closeModal')">❌ X</button>
+            <button class="button start" onclick="startGame()">Start Playing</button>
+            <button class="button highscore">View High Score</button>
         </div>
     </div>
 
-    <div id="channelModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('channelModal')">&times;</span>
-            <p>This is the Channel modal. Add your channel information here.</p>
+    <!-- Game Screen -->
+    <div class="game-screen">
+        <div class="score-board">Score: <span id="score">0</span></div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
         </div>
-    </div>
-
-    <div id="closeModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('closeModal')">&times;</span>
-            <p>This is the Close modal. Add your close action information here.</p>
-        </div>
+        <div id="game-area" style="position: relative; width: 100%; height: 100%; flex-grow: 1;"></div>
+        <button class="button highscore" onclick="backToMenu()">Back to Menu</button>
     </div>
 
     <script>
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
+        let score = 0;
+        const totalCoins = 4000;
+        let remainingCoins = totalCoins;
+        const maxCoinsOnScreen = 30;
+
+        function startGame() {
+            document.querySelector('.main-menu').style.display = 'none';
+            document.querySelector('.game-screen').style.display = 'flex';
+            updateProgressBar();
+            spawnCoins();
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+        function backToMenu() {
+            document.querySelector('.game-screen').style.display = 'none';
+            document.querySelector('.main-menu').style.display = 'flex';
+            score = 0;
+            remainingCoins = totalCoins;
+            document.getElementById('score').textContent = score;
+            document.getElementById('progress').style.width = '100%';
+            document.getElementById('game-area').innerHTML = '';
         }
 
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal(event.target.id);
+        function updateProgressBar() {
+            const progressPercentage = (remainingCoins / totalCoins) * 100;
+            document.getElementById('progress').style.width = progressPercentage + '%';
+        }
+
+        function spawnCoins() {
+            const gameArea = document.getElementById('game-area');
+            const currentCoins = gameArea.getElementsByClassName('coin').length;
+            const coinsToAdd = maxCoinsOnScreen - currentCoins;
+            for (let i = 0; i < coinsToAdd; i++) {
+                createCoin(gameArea);
             }
+        }
+
+        function createCoin(gameArea) {
+            const coin = document.createElement('div');
+            coin.classList.add('coin');
+            positionCoinRandomly(coin, gameArea);
+            gameArea.appendChild(coin);
+
+            coin.addEventListener('mouseover', () => {
+                score += 1;
+                remainingCoins -= 1;
+                document.getElementById('score').textContent = score;
+                updateProgressBar();
+                positionCoinRandomly(coin, gameArea);
+                if (remainingCoins <= 0) {
+                    alert('Game Over! You collected all the coins.');
+                    backToMenu();
+                }
+            });
+        }
+
+        function positionCoinRandomly(coin, gameArea) {
+            coin.style.top = `${Math.random() * (gameArea.clientHeight - 70)}px`;
+            coin.style.left = `${Math.random() * (gameArea.clientWidth - 70)}px`;
+        }
+
+        window.onload = () => {
+            setTimeout(() => {
+                document.querySelector('.splash').style.display = 'none';
+                document.querySelector('.main-menu').style.display = 'flex';
+            }, 3000);
         }
     </script>
 </body>
