@@ -11,9 +11,10 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: linear-gradient(to bottom, #ff7e5f, #feb47b);
             font-family: Arial, sans-serif;
             color: white;
+            background: url('./images/background.jpeg') no-repeat center center fixed; /* Add your game background image path */
+            background-size: cover;
         }
         .splash, .main-menu, .game-screen {
             position: absolute;
@@ -24,8 +25,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(to bottom, #ff7e5f, #feb47b);
             z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
         }
         .splash-text {
             font-size: 48px;
@@ -67,9 +68,12 @@
             font-size: 24px;
             margin-bottom: 20px;
         }
+        .progress {
+            padding: 20px;
+        }
         .progress-bar {
             width: 100%;
-            height: 20px;
+            height: 35px;
             background-color: #ccc;
             border-radius: 10px;
             overflow: hidden;
@@ -83,11 +87,57 @@
         }
         .coin {
             position: absolute;
-            width: 70px;
-            height: 70px;
-            background: gold;
+            width: 100px; /* Increased coin size */
+            height: 100px; /* Increased coin size */
+            background: url('./images/coin.png') no-repeat center center; /* Add your coin image path */
+            background-size: cover;
             border-radius: 50%;
             cursor: pointer;
+            animation: popUp 0.3s ease-out;
+        }
+        @keyframes popUp {
+            0% {
+                transform: scale(0.5);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .fire-splash {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,69,0,1) 0%, rgba(255,140,0,0.6) 40%, rgba(255,140,0,0) 70%);
+            pointer-events: none;
+            animation: splash 0.5s ease-out;
+        }
+        @keyframes splash {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        .score-animation {
+            position: absolute;
+            font-size: 24px;
+            color: #ffeb3b;
+            pointer-events: none;
+            animation: scorePop 1.5s ease-out forwards;
+        }
+        @keyframes scorePop {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -110,8 +160,11 @@
     <!-- Game Screen -->
     <div class="game-screen">
         <div class="score-board">Score: <span id="score">0</span></div>
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
+        
+        <div class="progress">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
         </div>
         <div id="game-area" style="position: relative; width: 100%; height: 100%; flex-grow: 1;"></div>
         <button class="button highscore" onclick="backToMenu()">Back to Menu</button>
@@ -122,12 +175,14 @@
         const totalCoins = 4000;
         let remainingCoins = totalCoins;
         const maxCoinsOnScreen = 30;
+        let fireSplashElement;
 
         function startGame() {
             document.querySelector('.main-menu').style.display = 'none';
             document.querySelector('.game-screen').style.display = 'flex';
             updateProgressBar();
             spawnCoins();
+            setupCursorFireAnimation();
         }
 
         function backToMenu() {
@@ -166,20 +221,9 @@
             });
 
             // Add touch event listeners
-            coin.addEventListener('touchstart', () => {
+            coin.addEventListener('touchstart', (event) => {
+                event.preventDefault();
                 handleCoinSwipe(coin, gameArea);
-            });
-            coin.addEventListener('touchmove', (event) => {
-                const touch = event.touches[0];
-                const coinRect = coin.getBoundingClientRect();
-                if (
-                    touch.clientX >= coinRect.left &&
-                    touch.clientX <= coinRect.right &&
-                    touch.clientY >= coinRect.top &&
-                    touch.clientY <= coinRect.bottom
-                ) {
-                    handleCoinSwipe(coin, gameArea);
-                }
             });
         }
 
@@ -188,24 +232,71 @@
             remainingCoins -= 1;
             document.getElementById('score').textContent = score;
             updateProgressBar();
-            positionCoinRandomly(coin, gameArea);
+            const coinRect = coin.getBoundingClientRect();
+            coin.remove();
+            createCoin(gameArea);
             if (remainingCoins <= 0) {
                 alert('Game Over! You collected all the coins.');
                 backToMenu();
             }
+
+            // Show score animation
+            const scoreAnim = document.createElement('div');
+            scoreAnim.classList.add('score-animation');
+            scoreAnim.textContent = '+1';
+            scoreAnim.style.top = `${coinRect.top - gameArea.offsetTop}px`;
+            scoreAnim.style.left = `${coinRect.left - gameArea.offsetLeft}px`;
+            gameArea.appendChild(scoreAnim);
+            setTimeout(() => {
+                scoreAnim.remove();
+            }, 1500);
+
+            // Show fire splash animation at the coin's position
+            const fireSplash = document.createElement('div');
+            fireSplash.classList.add('fire-splash');
+            fireSplash.style.top = `${coinRect.top - gameArea.offsetTop}px`;
+            fireSplash.style.left = `${coinRect.left - gameArea.offsetLeft}px`;
+            gameArea.appendChild(fireSplash);
+            setTimeout(() => {
+                fireSplash.remove();
+            }, 500);
         }
 
         function positionCoinRandomly(coin, gameArea) {
-            coin.style.top = `${Math.random() * (gameArea.clientHeight - 70)}px`;
-            coin.style.left = `${Math.random() * (gameArea.clientWidth - 70)}px`;
+            coin.style.top = `${Math.random() * (gameArea.clientHeight - 100)}px`; /* Adjusted for new coin size */
+            coin.style.left = `${Math.random() * (gameArea.clientWidth - 100)}px`; /* Adjusted for new coin size */
         }
 
-        window.onload = () => {
-            setTimeout(() => {
-                document.querySelector('.splash').style.display = 'none';
-                document.querySelector('.main-menu').style.display = 'flex';
-            }, 3000);
+        function setupCursorFireAnimation() {
+            const gameArea = document.getElementById('game-area');
+            fireSplashElement = document.createElement('div');
+            fireSplashElement.classList.add('fire-splash');
+            fireSplashElement.style.display = 'none';
+            gameArea.appendChild(fireSplashElement);
+
+            let fireTimeout;
+            gameArea.addEventListener('mousemove', (event) => {
+                clearTimeout(fireTimeout);
+                const rect = gameArea.getBoundingClientRect();
+                fireSplashElement.style.top = `${event.clientY - rect.top - 25}px`;
+                fireSplashElement.style.left = `${event.clientX - rect.left - 25}px`;
+                fireSplashElement.style.display = 'block';
+
+                fireTimeout = setTimeout(() => {
+                    fireSplashElement.style.display = 'none';
+                }, 300);
+            });
+
+            gameArea.addEventListener('mouseleave', () => {
+                fireSplashElement.style.display = 'none';
+            });
         }
+
+        // Initial splash screen display
+        setTimeout(() => {
+            document.querySelector('.splash').style.display = 'none';
+            document.querySelector('.main-menu').style.display = 'flex';
+        }, 3000);
     </script>
 </body>
 </html>
