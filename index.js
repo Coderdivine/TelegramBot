@@ -9,7 +9,7 @@ const port = process.env.PORT || 4000;
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html')
+    res.sendFile(__dirname + '/public/index.html');
 });
 
 const token = process.env.BOT_API_KEY;
