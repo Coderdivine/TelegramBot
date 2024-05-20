@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YES&NO Game BOT</title>
+    <title>YES&NO</title>
     <style>
         body {
             display: flex;
@@ -160,17 +160,28 @@
             positionCoinRandomly(coin, gameArea);
             gameArea.appendChild(coin);
 
+            // Add mouse event listener
             coin.addEventListener('mouseover', () => {
-                score += 1;
-                remainingCoins -= 1;
-                document.getElementById('score').textContent = score;
-                updateProgressBar();
-                positionCoinRandomly(coin, gameArea);
-                if (remainingCoins <= 0) {
-                    alert('Game Over! You collected all the coins.');
-                    backToMenu();
-                }
+                handleCoinSwipe(coin, gameArea);
             });
+
+            // Add touch event listeners
+            coin.addEventListener('touchstart', (event) => {
+                handleCoinSwipe(coin, gameArea);
+                event.preventDefault();
+            });
+        }
+
+        function handleCoinSwipe(coin, gameArea) {
+            score += 1;
+            remainingCoins -= 1;
+            document.getElementById('score').textContent = score;
+            updateProgressBar();
+            positionCoinRandomly(coin, gameArea);
+            if (remainingCoins <= 0) {
+                alert('Game Over! You collected all the coins.');
+                backToMenu();
+            }
         }
 
         function positionCoinRandomly(coin, gameArea) {
