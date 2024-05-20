@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> YES&NO </title>
+    <title>YES&NO</title>
     <style>
         body {
             display: flex;
@@ -166,9 +166,20 @@
             });
 
             // Add touch event listeners
-            coin.addEventListener('touchstart', (event) => {
+            coin.addEventListener('touchstart', () => {
                 handleCoinSwipe(coin, gameArea);
-                event.preventDefault();
+            });
+            coin.addEventListener('touchmove', (event) => {
+                const touch = event.touches[0];
+                const coinRect = coin.getBoundingClientRect();
+                if (
+                    touch.clientX >= coinRect.left &&
+                    touch.clientX <= coinRect.right &&
+                    touch.clientY >= coinRect.top &&
+                    touch.clientY <= coinRect.bottom
+                ) {
+                    handleCoinSwipe(coin, gameArea);
+                }
             });
         }
 
