@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require('path');
 const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -10,6 +11,13 @@ app.use(express.static('public'));
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Fallback route for SPA (Single Page Application) handling
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const token = process.env.BOT_API_KEY;
@@ -30,5 +38,5 @@ bot.onText(/\/start/, (msg) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server Created, running on port ${port}`);
 });
