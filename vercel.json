@@ -4,15 +4,16 @@
       {
         "src": "public/**/*",
         "use": "@vercel/static"
+      },
+      {
+        "src": "index.js",
+        "use": "@vercel/node"
       }
     ],
     "routes": [
       {
-        "handle": "filesystem"
-      },
-      {
         "src": "/(.*)",
-        "dest": "/public/index.html"
+        "dest": "/index.html"
       }
     ]
   }
